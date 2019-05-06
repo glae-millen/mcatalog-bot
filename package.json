@@ -1,0 +1,28 @@
+{
+  "name": "badmash",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "async-limiter": "^1.0.0",
+    "discord.js": "^11.4.2",
+    "enmap": "^4.8.5",
+    "google-spreadsheets": "^2.0.0",
+    "express": "^4.16.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/glae-millen/mcatalog-bot.git"
+  },
+  "author": "glae-millen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/glae-millen/mcatalog-bot/issues"
+  },
+  "homepage": "https://github.com/glae-millen/mcatalog-bot"
+}
