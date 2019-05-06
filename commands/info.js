@@ -25,7 +25,7 @@ exports.run = (client, message, args) => {
           for(x=1;x<=sheet.rowCount;x++) {
             if(result.cells[x][1].value.toLowerCase().includes(sQuery)
               || result.cells[x][8].value.toLowerCase().includes(sQuery)) {
-              output = result.cells[x];
+              var output = result.cells[x];
               break;
             }
           }
