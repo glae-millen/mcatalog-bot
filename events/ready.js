@@ -1,5 +1,7 @@
 //ready.js
-module.exports = (client, ready) => {
+module.exports = (client, ready) =>
+{
 	console.log(`MCatalog Bot v. ${client.config.version} -- Username: ${client.user.username}`);
-	client.user.setActivity(`FL > Ableton`, {type: "PLAYING"});
+  console.log(`Currently serving ${client.guilds.size} servers and ${client.users.size} members`);
+	client.user.setActivity(`Ah shit, here we go again *rhusma intensifies*`, {type: "PLAYING"});
 }
