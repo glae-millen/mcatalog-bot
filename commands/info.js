@@ -15,11 +15,13 @@ exports.run = (client, message, args) =>
       args[i] = args[i].toLowerCase();
     }
 
-    var headers = ["ID", "Release Date", "Brand", "CC Licensable",
-                   "Genre", "Subgenre", "Artist(s)", "Title",
-                   "Compilation", "Length", "BPM", "Key", "Fan Rating"];
     const embed = new client.Discord.RichEmbed();
-    var info, title, forEmbed;
+    var info, title, forEmbed,
+        mergedArgs = args.join(" "),
+        headers = ["ID", "Release Date", "Brand", "CC Licensable",
+                   "Genre", "Subgenre", "Artist(s)", "Title",
+                   "Compilation", "Length", "BPM", "Key", "Fan Rating"],
+        dupes = ["remix", "remake", "vip", "classical", "mix"];
 
     client.gSheet({key: client.config.sheetKey},
       function(err, spreadsheet)
@@ -64,10 +66,8 @@ exports.run = (client, message, args) =>
               {
                 if (rowStr.includes(args[i]))
                 {
-                  //ignore remixes/vips when uncalled for
-                  if (rowStr.includes("mix") && !(args.includes("mix") || args.includes("remix"))) continue;
-                  if (rowStr.includes("vip") && !args.includes("vip")) continue;
-                  if (rowStr.includes("remake") && !args.includes("remake")) continue;
+                  //ignore other renditions of a track when uncalled for
+                  if (rowStr.includes(dupes) && !mergedArgs.includes(dupes)) continue;
 
                   anyMatch = true;
                   matchCounter[x]++; // increment when input matches row
