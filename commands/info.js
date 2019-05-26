@@ -26,9 +26,8 @@ exports.run = (client, message, args) =>
     client.gSheet({key: client.config.sheetKey},
       function(err, spreadsheet)
       {
-        if (err) {
+        if (err)
           return console.error(err);
-        }
 
         var sheet = spreadsheet.worksheets[7];
 
@@ -67,10 +66,12 @@ exports.run = (client, message, args) =>
                 if (rowStr.includes(args[i]))
                 {
                   //ignore other renditions of a track when uncalled for
-                  if (rowStr.includes(dupes) && !mergedArgs.includes(dupes)) continue;
-
-                  anyMatch = true;
-                  matchCounter[x]++; // increment when input matches row
+                  for (var k = 0; k < dupes.length; k++)
+                  {
+                    if (rowStr.includes(dupes[k]) && !mergedArgs.includes(dupes[k])) continue;
+                    anyMatch = true;
+                    matchCounter[x]++;
+                  }
                   //console.log(`input "${args[i]}" found in row ${x}: ${rowStr}`);
                 }
                 else continue;
