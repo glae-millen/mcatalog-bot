@@ -18,7 +18,7 @@ exports.run = (client, message, args) =>
     const embed = new client.Discord.RichEmbed();
     var info, title, forEmbed,
         mergedArgs = args.join(" "),
-        headers = ["ID", "Release Date", "Brand", "CC Licensable",
+        headers = ["ID", "Release Date", "Brand", "CC Licensable", "Explicit Content",
                    "Genre", "Subgenre", "Artist(s)", "Title",
                    "Compilation", "Length", "BPM", "Key", "Fan Rating"],
         dupes = ["remix", "remake", "vip", "classical", "mix"];
@@ -29,9 +29,10 @@ exports.run = (client, message, args) =>
         if (err)
           return console.error(err);
 
-        var sheet = spreadsheet.worksheets[7];
-
-        sheet.cells({worksheet: 8},
+        var sheet = spreadsheet.worksheets[5];
+        // Debug code to find the current sheet number for the catalog
+        // return console.log(spreadsheet.worksheets);
+        sheet.cells({worksheet: 6},
           function(err, theSheet)
           {
             var temp = [];
@@ -102,12 +103,12 @@ exports.run = (client, message, args) =>
             forEmbed = theSheet.cells[indexOfMax];
             //console.log(output);
 
-            title = forEmbed[8].value;
+            title = forEmbed[9].value;
 
             //formatting
-            for(x=1;x<=13;x++)
+            for(x=1;x<=14;x++)
             {
-              if (x!=8)
+              if (x!=9)
               {
                 if (x==3)
                 {
@@ -127,7 +128,16 @@ exports.run = (client, message, args) =>
                     case 'N': temp[x-1] = `**${headers[x-1]}:** No`;
                   }
                 }
-                else if (x==13)
+                else if (x==5)
+                {
+                  switch(forEmbed[x].value)
+                  {
+                    case 'C': temp[x-1] = `**${headers[x-1]}:** Clean`; break;
+                    case 'E': temp[x-1] = `**${headers[x-1]}:** Explicit`; break;
+                    case '-': temp[x-1] = `**${headers[x-1]}:** -`;
+                  }
+                }
+                else if (x==14)
                 {
                   if (forEmbed[x] === undefined)
                   {
@@ -145,11 +155,11 @@ exports.run = (client, message, args) =>
               }
             }
 
-            temp.splice(7,1);
+            temp.splice(8,1);
             info = temp.join("\n");
 
             embed
-              .setColor('DARK_VIVID_PINK')
+              .setColor('888888')
               .setTitle(`**${title}**`)
               .setDescription(`${info}`)
 
