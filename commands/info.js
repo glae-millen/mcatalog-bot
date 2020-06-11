@@ -19,8 +19,8 @@ exports.run = (client, message, args) =>
     var info, title, forEmbed,
         mergedArgs = args.join(" "),
         headers = ["ID", "Release Date", "Brand", "CC Licensable", "Explicit Content",
-                   "Genre", "Subgenre", "Artist(s)", "Title",
-                   "Compilation", "Length", "BPM", "Key", "Fan Rating"],
+                   "Genre", "Artist(s)", "Title",
+                   "Compilation", "Length", "BPM", "Key"],
         dupes = ["remix", "remake", "vip", "classical", "mix"];
 
     client.gSheet({key: client.config.sheetKey},
@@ -29,10 +29,10 @@ exports.run = (client, message, args) =>
         if (err)
           return console.error(err);
 
-        var sheet = spreadsheet.worksheets[5];
+        var sheet = spreadsheet.worksheets[2];
         // Debug code to find the current sheet number for the catalog
         // return console.log(spreadsheet.worksheets);
-        sheet.cells({worksheet: 6},
+        sheet.cells({worksheet: 3},
           function(err, theSheet)
           {
             var temp = [];
@@ -103,63 +103,81 @@ exports.run = (client, message, args) =>
             forEmbed = theSheet.cells[indexOfMax];
             //console.log(output);
 
-            title = forEmbed[9].value;
+            title = forEmbed[8].value;
 
             //formatting
-            for(x=1;x<=14;x++)
-            {
-              if (x!=9)
+              for(x=1;x<=12;x++)
               {
-                if (x==3)
+                try
                 {
-                  switch(forEmbed[x].value)
+                  if (x!=8)
                   {
-                    case 'U': temp[x-1] = `**${headers[x-1]}:** Uncaged`; break;
-                    case 'I': temp[x-1] = `**${headers[x-1]}:** Instinct`; break;
-                    case 'A': temp[x-1] = `**${headers[x-1]}:** Album`; break;
-                    case 'M': temp[x-1] = `**${headers[x-1]}:** Mixed`;
+                    if (x==3)
+                    {
+                      switch(forEmbed[x].value)
+                      {
+                        case 'U': temp[x-1] = `**${headers[x-1]}:** Uncaged`; break;
+                        case 'I': temp[x-1] = `**${headers[x-1]}:** Instinct`; break;
+                        case 'A': temp[x-1] = `**${headers[x-1]}:** Album`; break;
+                        case 'M': temp[x-1] = `**${headers[x-1]}:** Mixed`;
+                      }
+                    }
+                    else if (x==4)
+                    {
+                      switch(forEmbed[x].value)
+                      {
+                        case 'Y': temp[x-1] = `**${headers[x-1]}:** Yes`; break;
+                        case 'N': temp[x-1] = `**${headers[x-1]}:** No`;
+                      }
+                    }
+                    else if (x==5)
+                    {
+
+                        switch(forEmbed[x].value)
+                        {
+                          case 'C': temp[x-1] = `**${headers[x-1]}:** Clean`; break;
+                          case 'E': temp[x-1] = `**${headers[x-1]}:** Explicit`; break;
+                          case 'I': temp[x-1] = `**${headers[x-1]}:** Instrumental`; break;
+                          case '-': temp[x-1] = `**${headers[x-1]}:** -`; break;
+                        }
+                    }
+                    else
+                    {
+                      temp[x-1] = `**${headers[x-1]}:** ${forEmbed[x].value}`;
+                    }
                   }
                 }
-                else if (x==4)
-                {
-                  switch(forEmbed[x].value)
-                  {
-                    case 'Y': temp[x-1] = `**${headers[x-1]}:** Yes`; break;
-                    case 'N': temp[x-1] = `**${headers[x-1]}:** No`;
-                  }
-                }
-                else if (x==5)
-                {
-                  switch(forEmbed[x].value)
-                  {
-                    case 'C': temp[x-1] = `**${headers[x-1]}:** Clean`; break;
-                    case 'E': temp[x-1] = `**${headers[x-1]}:** Explicit`; break;
-                    case '-': temp[x-1] = `**${headers[x-1]}:** -`;
-                  }
-                }
-                else if (x==14)
-                {
-                  if (forEmbed[x] === undefined)
-                  {
-                    temp[x-1] = `**${headers[x-1]}:** N/A`;
-                  }
-                  else
-                  {
-                    temp[x-1] = `**${headers[x-1]}:** ${forEmbed[x].value}`;
-                  }
-                }
-                else
-                {
-                  temp[x-1] = `**${headers[x-1]}:** ${forEmbed[x].value}`;
-                }
+              catch(err)
+              {
+                temp[x-1] = `**${headers[x-1]}:** N/A`;
               }
             }
 
-            temp.splice(8,1);
+            temp.splice(7,1);
             info = temp.join("\n");
 
+            var genre = forEmbed[6].value;
+            var color;
+
+            var genres =
+                ['Hip Hop', 'Traditional', 'Future Bass', 'UK Garage', 'Instinct', 'Downtempo / Ambient', 'Drum & Bass', 'Experimental',
+                 'House', 'Electro House', 'Hardcore', 'Midtempo', 'Pop', 'Trance', 'Dubstep', 'Drumstep', 'Trap', 'Metal', 'Punk', 'Breaks',
+                 'Rock', 'R&B', 'Industrial', 'Uncaged', 'Synthwave', 'Miscellaneous', 'Album', '? / -'];
+            var colors =
+                ['d77f7d', 'd0ad60', '9090ff', 'bf7fff', 'faeccf', 'f0b4b5', 'f61a03', '757c65', 'eb8200', 'e1c500', '009600', '0a9655', '16acb0',
+                 '0080e6', '941de8', 'd5007f', '810029', '003a12', '3a003a', '0a1857', '87c095', '6988a2', '282828', '1c1c1c', '674ea7', 'b9b9b9',
+                 'b9b9b9', 'b9b9b9'];
+
+            for (var i = 0; i < genres.length; i++)
+            {
+              if (genres[i] == genre)
+              {
+                color = colors[i];
+              }
+            }
+
             embed
-              .setColor('888888')
+              .setColor(color)
               .setTitle(`**${title}**`)
               .setDescription(`${info}`)
 
