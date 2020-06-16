@@ -101,72 +101,91 @@ exports.run = (client, message, args) =>
               output += theSheet.cells[indexOfMax][j].value+ " | ";
             }
             forEmbed = theSheet.cells[indexOfMax];
+            /*console.log(forEmbed);
+              for (var i = 0; i < 12; i++)
+              {
+                try{
+                  forEmbed[i].value;
+                }
+                catch(err){
+                  forEmbed[i].value = '?';
+                }
+              }
+            return console.log(forEmbed);*/
             //console.log(output);
 
-            title = forEmbed[8].value;
+            try
+            {
+              title = forEmbed[8].value;
+            }
+            catch(err)
+            {
+              title = '?';
+            }
 
             //formatting
-              for(x=1;x<=12;x++)
+            for(x = 1; x <= 12; x++)
+            {
+              try
               {
-                try
+                if (x!=8)
                 {
-                  if (x!=8)
+                  if (x==3)
                   {
-                    if (x==3)
+                    switch(forEmbed[x].value)
                     {
-                      switch(forEmbed[x].value)
-                      {
-                        case 'U': temp[x-1] = `**${headers[x-1]}:** Uncaged`; break;
-                        case 'I': temp[x-1] = `**${headers[x-1]}:** Instinct`; break;
-                        case 'A': temp[x-1] = `**${headers[x-1]}:** Album`; break;
-                        case 'M': temp[x-1] = `**${headers[x-1]}:** Mixed`;
-                      }
-                    }
-                    else if (x==4)
-                    {
-                      switch(forEmbed[x].value)
-                      {
-                        case 'Y': temp[x-1] = `**${headers[x-1]}:** Yes`; break;
-                        case 'N': temp[x-1] = `**${headers[x-1]}:** No`;
-                      }
-                    }
-                    else if (x==5)
-                    {
-
-                        switch(forEmbed[x].value)
-                        {
-                          case 'C': temp[x-1] = `**${headers[x-1]}:** Clean`; break;
-                          case 'E': temp[x-1] = `**${headers[x-1]}:** Explicit`; break;
-                          case 'I': temp[x-1] = `**${headers[x-1]}:** Instrumental`; break;
-                          case '-': temp[x-1] = `**${headers[x-1]}:** -`; break;
-                        }
-                    }
-                    else
-                    {
-                      temp[x-1] = `**${headers[x-1]}:** ${forEmbed[x].value}`;
+                      case 'U': temp[x-1] = `**${headers[x-1]}:** Uncaged`; break;
+                      case 'I': temp[x-1] = `**${headers[x-1]}:** Instinct`; break;
+                      case 'A': temp[x-1] = `**${headers[x-1]}:** Album`; break;
+                      case 'M': temp[x-1] = `**${headers[x-1]}:** Mixed`;
                     }
                   }
+                  else if (x==4)
+                  {
+                    switch(forEmbed[x].value)
+                    {
+                      case 'Y': temp[x-1] = `**${headers[x-1]}:** Yes`; break;
+                      case 'N': temp[x-1] = `**${headers[x-1]}:** No`;
+                    }
+                  }
+                  else if (x==5)
+                  {
+                    switch(forEmbed[x].value)
+                    {
+                      case 'C': temp[x-1] = `**${headers[x-1]}:** Clean`; break;
+                      case 'E': temp[x-1] = `**${headers[x-1]}:** Explicit`; break;
+                      case 'I': temp[x-1] = `**${headers[x-1]}:** Instrumental`; break;
+                      case '-': temp[x-1] = `**${headers[x-1]}:** -`;
+                    }
+                  }
+                  else
+                  {
+                    temp[x-1] = `**${headers[x-1]}:** ${forEmbed[x].value}`;
+                  }
                 }
+              }
               catch(err)
               {
-                temp[x-1] = `**${headers[x-1]}:** N/A`;
+                temp[x-1] = `**${headers[x-1]}:** ?`;
               }
             }
 
             temp.splice(7,1);
             info = temp.join("\n");
 
-            var genre = forEmbed[6].value;
-            var color;
+            var genre;
+            try { genre = forEmbed[6].value; }
+            catch(err) { genre = '?'; }
+
+            var color = 'b9b9b9';
 
             var genres =
                 ['Hip Hop', 'Traditional', 'Future Bass', 'UK Garage', 'Instinct', 'Downtempo / Ambient', 'Drum & Bass', 'Experimental',
                  'House', 'Electro House', 'Hardcore', 'Midtempo', 'Pop', 'Trance', 'Dubstep', 'Drumstep', 'Trap', 'Metal', 'Punk', 'Breaks',
-                 'Rock', 'R&B', 'Industrial', 'Uncaged', 'Synthwave', 'Miscellaneous', 'Album', '? / -'];
+                 'Rock', 'R&B', 'Industrial', 'Uncaged', 'Synthwave', 'Moombah', 'Glitch Hop'];
             var colors =
                 ['d77f7d', 'd0ad60', '9090ff', 'bf7fff', 'faeccf', 'f0b4b5', 'f61a03', '757c65', 'eb8200', 'e1c500', '009600', '0a9655', '16acb0',
-                 '0080e6', '941de8', 'd5007f', '810029', '003a12', '3a003a', '0a1857', '87c095', '6988a2', '282828', '1c1c1c', '674ea7', 'b9b9b9',
-                 'b9b9b9', 'b9b9b9'];
+                 '0080e6', '941de8', 'd5007f', '810029', '003a12', '3a003a', '0a1857', '87c095', '6988a2', '282828', '1c1c1c', '674ea7', '0a9655', '0a9655'];
 
             for (var i = 0; i < genres.length; i++)
             {

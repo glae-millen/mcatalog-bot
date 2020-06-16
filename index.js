@@ -1,4 +1,4 @@
-//index.js, Glitch integrated
+//index.js, Glitch integratable
 const Discord = require("discord.js");
 const Enmap = require("enmap");
 const fs = require("fs");
@@ -21,22 +21,23 @@ app.get("/", (request, response) =>
   response.sendStatus(200);
 });
 
-app.listen(process.env.PORT);
-setInterval(() =>
-{
-  http.get(`http://${process.env.PROJECT_DOMAIN}.glitch.me/`);
-}, 280000);
-
-fs.readdir("./events/", (err, files) =>
-{
-	if (err) return console.error(err);
-	files.forEach(file =>
-  {
-		const event = require(`./events/${file}`);
-		let eventName = file.split(".")[0];
-		client.on(eventName, event.bind(null, client));
-	});
-});
+// Glitch stuff
+// app.listen(process.env.PORT);
+// setInterval(() =>
+// {
+//   http.get(`http://${process.env.PROJECT_DOMAIN}.glitch.me/`);
+// }, 280000);
+//
+// fs.readdir("./events/", (err, files) =>
+// {
+// 	if (err) return console.error(err);
+// 	files.forEach(file =>
+//   {
+// 		const event = require(`./events/${file}`);
+// 		let eventName = file.split(".")[0];
+// 		client.on(eventName, event.bind(null, client));
+// 	});
+// });
 
 client.commands = new Enmap();
 
@@ -53,4 +54,6 @@ fs.readdir("./commands/", (err, files) =>
 	});
 });
 
-client.login(process.env.DISCORD_BOT_TOKEN);
+// Glitch stuff
+// client.login(process.env.DISCORD_BOT_TOKEN);
+client.login(client.config.token);
