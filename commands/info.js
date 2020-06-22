@@ -1,6 +1,10 @@
 //info.js
 exports.run = (client, message, args) =>
 {
+  // Capture the time at the start of function execution
+  var startTime = new Date().getTime();
+  
+  const embed = new client.Discord.MessageEmbed();
   try
   {
     //prevent crash from entering empty args
@@ -15,7 +19,6 @@ exports.run = (client, message, args) =>
       args[i] = args[i].toLowerCase();
     }
 
-    const embed = new client.Discord.RichEmbed();
     var info, title, forEmbed,
         mergedArgs = args.join(" "),
         headers = ["ID", "Release Date", "Brand", "CC Licensable", "Explicit Content",
@@ -73,7 +76,7 @@ exports.run = (client, message, args) =>
                     anyMatch = true;
                     matchCounter[x]++;
                   }
-                  //console.log(`input "${args[i]}" found in row ${x}: ${rowStr}`);
+                  console.log(`input "${args[i]}" found in row ${x}: ${rowStr}`);
                 }
                 else continue;
               }
@@ -114,11 +117,11 @@ exports.run = (client, message, args) =>
             return console.log(forEmbed);*/
             //console.log(output);
 
-            try
+            try 
             {
               title = forEmbed[8].value;
             }
-            catch(err)
+            catch(err) 
             {
               title = '?';
             }
@@ -172,18 +175,18 @@ exports.run = (client, message, args) =>
 
             temp.splice(7,1);
             info = temp.join("\n");
-
+          
             var genre;
             try { genre = forEmbed[6].value; }
             catch(err) { genre = '?'; }
-
+          
             var color = 'b9b9b9';
 
             var genres =
                 ['Hip Hop', 'Traditional', 'Future Bass', 'UK Garage', 'Instinct', 'Downtempo / Ambient', 'Drum & Bass', 'Experimental',
                  'House', 'Electro House', 'Hardcore', 'Midtempo', 'Pop', 'Trance', 'Dubstep', 'Drumstep', 'Trap', 'Metal', 'Punk', 'Breaks',
                  'Rock', 'R&B', 'Industrial', 'Uncaged', 'Synthwave', 'Moombah', 'Glitch Hop'];
-            var colors =
+            var colors = 
                 ['d77f7d', 'd0ad60', '9090ff', 'bf7fff', 'faeccf', 'f0b4b5', 'f61a03', '757c65', 'eb8200', 'e1c500', '009600', '0a9655', '16acb0',
                  '0080e6', '941de8', 'd5007f', '810029', '003a12', '3a003a', '0a1857', '87c095', '6988a2', '282828', '1c1c1c', '674ea7', '0a9655', '0a9655'];
 
@@ -198,9 +201,16 @@ exports.run = (client, message, args) =>
             embed
               .setColor(color)
               .setTitle(`**${title}**`)
-              .setDescription(`${info}`)
+              .setDescription(`${info}`);
+          // Capture the time at the end of function execution
+          var endTime = new Date().getTime();
 
-            message.channel.send(embed).catch(console.error);
+          // Calculate and log the total run time of the function
+          var funcTime = endTime - startTime;
+          console.log(`Retrieved in ${funcTime}ms.`);
+          embed.setFooter(`Retrieved in ${funcTime}ms.`);
+
+          message.channel.send(embed).catch(console.error);
           });
       });
   }

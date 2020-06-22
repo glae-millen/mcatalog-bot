@@ -1,6 +1,6 @@
 //uptime.js
 exports.run = (client, message, args) => {
-  const embed = new client.Discord.RichEmbed();
+  const embed = new client.Discord.MessageEmbed();
   var x, send = [];
 
 	let totalSeconds = (client.uptime / 1000);
