@@ -1,10 +1,14 @@
-//ping.js
+// ping.js
 exports.run = (client, message, args) =>
 {
-	const embed = new client.Discord.RichEmbed();
-
+  // Initalize Discord embed and required variables
+	const embed = new client.Discord.MessageEmbed();
+  const ping = Date.now() - message.createdTimestamp;
+  var color = client.handler.colorize(client);
+  
+  // Build the embed
 	embed
-		.setColor('DARK_VIVID_PINK')
-		.setTitle(`:ping_pong: **Pong!** Ping is __${Math.round(client.ping)}__ ms.`)
+		.setColor(`${color}`)
+		.setTitle(`:ping_pong: **Pong!** Ping is __${Math.round(ping)}__ ms.`)
 	message.channel.send(embed).catch(console.error);
 }

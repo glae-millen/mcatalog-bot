@@ -1,4 +1,4 @@
-//message.js
+// message.js
 module.exports = (client, message) =>
 {
   // Easy access for the bot avatar

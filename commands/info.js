@@ -1,4 +1,4 @@
-//info.js
+//info.js, deprecated
 exports.run = (client, message, args) =>
 {
   // Capture the time at the start of function execution

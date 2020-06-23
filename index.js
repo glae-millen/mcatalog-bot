@@ -6,20 +6,22 @@ const Enmap = require("enmap");
 const fs = require("fs");
 const config = require("./resources/keys/config.json");
 const colors = require("./resources/objects/colors.json");
+const keyCodes = require("./resources/objects/keyCodes.json");
 const gSheet = require('google-spreadsheets');
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 const fetch = require('node-fetch');
-const formatter = require("./resources/modules/formatter");
+const handler = require("./resources/modules/handler");
 
 // Reinitialize dependencies to let submodules use them
 client.config = config;
 client.colors = colors;
+client.keyCodes = keyCodes;
 client.Discord = Discord;
 client.fs = fs;
 client.gSheet = gSheet;
 client.gs = GoogleSpreadsheet;
 client.fetch = fetch;
-client.formatter = formatter;
+client.handler = handler;
 
 // Initialize Google Sheets API
 const doc = new client.gs(client.config.sheetKey);
@@ -53,5 +55,5 @@ fs.readdir("./commands/", (err, files) =>
 	});
 });  
 
-// Finally login;
+// Finally login
 client.login(client.config.token);

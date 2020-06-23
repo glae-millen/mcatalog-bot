@@ -1,26 +1,41 @@
-//uptime.js
+// uptime.js
 exports.run = (client, message, args) => {
+  // Initialize Discord embed and basic variables
   const embed = new client.Discord.MessageEmbed();
-  var x, send = [];
-
+  var x, send = [],
+      color = client.handler.colorize(client);
+  
+  // Convert client uptime from ms to seconds
 	let totalSeconds = (client.uptime / 1000);
+  
+  // Calculate days
   let days = Math.floor(totalSeconds / 86400);
+  
+  // Push to hours
   totalSeconds %= 86400;
+  
+  // Calculate hours
   let hours = Math.floor(totalSeconds / 3600);
+  
+  // Push to minutes
   totalSeconds %= 3600;
+  
+  // Calculate minutes and seconds
   let minutes = Math.floor(totalSeconds / 60);
   let seconds = Math.floor(totalSeconds % 60);
+  
+  // Format and build acquired data for embed
   let uptime = `The bot has been up for `;
   let dsend = `${days} day`;
   let hrsend = `${hours} hour`;
   let minsend = `${minutes} minute`;
   let ssend = `${seconds} second`;
-
+  
   if (days > 1) dsend += `s`;
   if (hours > 1) hrsend += `s`;
   if (minutes > 1) minsend += `s`;
   if (seconds > 1) ssend += `s`;
-
+  
   if (days > 0) send.push(dsend);
   if (hours > 0) send.push(hrsend);
   if (minutes > 0) send.push(minsend);
@@ -42,7 +57,9 @@ exports.run = (client, message, args) => {
   }
 
 	embed
-		.setColor('DARK_VIVID_PINK')
+		.setColor(`${color}`)
 		.setTitle(`:timer: ${uptime}`)
+  
+  // Send the embed
 	message.channel.send(embed).catch(console.error);
 }

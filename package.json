@@ -1,6 +1,6 @@
 {
   "name": "badmash",
-  "version": "1.2.0-alpha",
+  "version": "1.2.1-alpha",
   "description": "A Discord bot that fetches data from the MCatalog Google Sheet",
   "main": "index.js",
   "dependencies": {
