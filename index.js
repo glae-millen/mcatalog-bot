@@ -1,33 +1,31 @@
-//index.js, Glitch integratable
+//index.js
+// Initialize dependencies
 const Discord = require("discord.js");
+const client = new Discord.Client();
 const Enmap = require("enmap");
 const fs = require("fs");
-const client = new Discord.Client();
-const config = require("./config.json");
-const gSheet = require('google-spreadsheets');
+const config = require("./resources/keys/config.json");
+const colors = require("./resources/objects/colors.json");
+const keyCodes = require("./resources/objects/keyCodes.json");
+const { GoogleSpreadsheet } = require('google-spreadsheet');
+const fetch = require('node-fetch');
+const handler = require("./resources/modules/handler");
 
+// Reinitialize dependencies to let submodules use them
 client.config = config;
+client.colors = colors;
+client.keyCodes = keyCodes;
 client.Discord = Discord;
 client.fs = fs;
-client.gSheet = gSheet;
+client.gs = GoogleSpreadsheet;
+client.fetch = fetch;
+client.handler = handler;
 
-// Glitch stuff
-// const http = require('http');
-// const express = require('express');
-// const app = express();
-//
-// app.get("/", (request, response) =>
-// {
-//   console.log(Date.now() + " Ping Received");
-//   response.sendStatus(200);
-// });
-//
-// app.listen(process.env.PORT);
-// setInterval(() =>
-// {
-//   http.get(`http://${process.env.PROJECT_DOMAIN}.glitch.me/`);
-// }, 280000);
+// Initialize Google Sheets API
+const doc = new client.gs(client.config.sheetKey);
+client.doc = doc;
 
+// Initialize events
 fs.readdir("./events/", (err, files) =>
 {
 	if (err) return console.error(err);
@@ -39,6 +37,7 @@ fs.readdir("./events/", (err, files) =>
 	});
 });
 
+// Initialize commands
 client.commands = new Enmap();
 
 fs.readdir("./commands/", (err, files) =>
@@ -54,6 +53,5 @@ fs.readdir("./commands/", (err, files) =>
 	});
 });
 
-// Glitch stuff
-// client.login(process.env.DISCORD_BOT_TOKEN);
+// Finally login
 client.login(client.config.token);

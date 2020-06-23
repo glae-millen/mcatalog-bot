@@ -1,212 +1,140 @@
-//info.js
-exports.run = (client, message, args) =>
-{
+// info.js (lookup.js in alpha branch)
+exports.run = async (client, message, args) => {
+  // Capture the time at the start of function execution
+  var startTime = new Date().getTime();
+
+  // Redefine the 'doc' (sheet) for easier access
+  const doc = client.doc;
+
+  // Initialize Discord embed
+  var embed;
+
+  // Big try/catch purely to spam ping Hanabi when you're debugging a crashing issue
   try
   {
-    //prevent crash from entering empty args
-    if(!args[0])
-    {
+    // Create a connection between the bot and the Google sheet
+    await doc.useServiceAccountAuth(require("../resources/keys/google.json"));
+    await doc.loadInfo();
+
+    // Prevent crash from entering empty args
+    if (!args[0])
       return message.reply("You entered nothing.");
-    }
-    //reinitialize inputs as lowercase
-    for (var i = 0; i < args.length; i++)
-    {
-      //console.log(args[i]);
-      args[i] = args[i].toLowerCase();
-    }
 
-    const embed = new client.Discord.RichEmbed();
-    var info, title, forEmbed,
+    // --DEBUG-- Log user input
+    // console.log("Lookup initiated: ", args);
+
+    // Reinitialize inputs as lowercase
+    for (var i = 0; i < args.length; i++) args[i] = args[i].toLowerCase();
+
+    // Initialize required variables for sheet lookup
+    var rowStr, theRow, debug,
+        rowMatches = 0,
+        anyMatch = false,
+        matchCounter = [],
         mergedArgs = args.join(" "),
-        headers = ["ID", "Release Date", "Brand", "CC Licensable", "Explicit Content",
-                   "Genre", "Artist(s)", "Title",
-                   "Compilation", "Length", "BPM", "Key"],
-        dupes = ["remix", "remake", "vip", "classical", "mix"];
+        dupes = [ "remix", "remake", "vip", "classical", "mix" ];
 
-    client.gSheet({key: client.config.sheetKey},
-      function(err, spreadsheet)
-      {
-        if (err)
-          return console.error(err);
+    // Automatically find the Catalog sheet. Yay!
+    var sheetId = 0;
+    doc.sheetsByIndex.forEach(x => {
+      if (x.title == "Catalog") sheetId = x.sheetId;
+    });
 
-        var sheet = spreadsheet.worksheets[2];
-        // Debug code to find the current sheet number for the catalog
-        // return console.log(spreadsheet.worksheets);
-        sheet.cells({worksheet: 3},
-          function(err, theSheet)
+    // Get the sheet and an obj array containing its rows
+    const sheet = doc.sheetsById[sheetId];
+    const rows = await sheet.getRows();
+
+    // Iterate through rows...
+    for (var rowNum = 0; rowNum < sheet.rowCount - 1; rowNum++)
+    {
+      // Create a copy of the current row
+      theRow = rows[rowNum];
+      var weight = 1;
+      rowMatches = 0;
+
+      // Initialize rowStr values (takes desired track info from the sheet row)
+      rowStr = (
+        theRow.ID      + " " +
+        theRow.Artists + " " +
+        theRow.Track   + " "
+        ).toLowerCase();
+
+      // EPs, albums, and compilations have a lower weight in terms of search accessibility
+      if (theRow.Genre.toLowerCase() == "ep" ||
+          theRow.Genre.toLowerCase() == "album" ||
+          theRow.Genre.toLowerCase() == "compilation")
+        weight = 0.5;
+
+      // Log rowStr (debug)
+        //console.log(rowStr);
+
+        // Iterate through user args...
+        for (var i = 0; i < args.length; i++)
+        {
+          // ...and check for matches within rows
+          if (rowStr.includes(args[i]))
           {
-            var temp = [];
-            if (err)
+            // Ignore other renditions of a track when uncalled for
+            for (var k = 0; k < dupes.length; k++)
             {
-              return console.error(err);
+              if (rowStr.includes(dupes[k]) && !mergedArgs.includes(dupes[k])) continue;
+              anyMatch = true;
+              rowMatches += weight;
             }
+            // --DEBUG-- Log results
+            //console.log(`input "${args[i]}" found in row ${x}: ${rowStr}`);
+          }
+          else continue;
+        }
 
-            var matchCounter = [];
-            var anyMatch = false;
+        if (rowMatches != 0)
+          matchCounter.push({ row: rowNum, matches: rowMatches });
+      }
 
-            // iterate through rows
-            for (var x = 1; x <= sheet.rowCount; x++)
-            {
-              // create space in matchCounter
-              matchCounter.push(0);
-              matchCounter[x] = 0;
+      // Run if there's a match between args and rowStr
+      if (anyMatch)
+      {
+        var index = 0;
 
-              // create rowStr
-              var rowStr = "";
+        // --DEBUG-- Weight checking p.1
+        // debug = `Initial selection: ${rows[index].Track}`;
 
-              // init rowStr values
-              for (var j = 1; j <= sheet.colCount; j++)
-              {
-                if (theSheet.cells[x][j] === undefined) continue;
-                rowStr += theSheet.cells[x][j].value.toLowerCase() + " ";
-              }
+        // Use latest entry
+        for (var i = 0; i < matchCounter.length; i++)
+        {
+          if (matchCounter[i].matches > matchCounter[index].matches)
+          {
+            // --DEBUG-- Weight checking p.2
+            // debug += `\nRelease ${rows[i].Artists} - ${rows[i].Track} has a greater weight than ${rows[i].Artists} - ${rows[index].Track}, switching selection`;
+            index = i;
+          }
+        }
+        // --DEBUG-- Log weight check
+        // console.log(debug);
 
-              // iterate through inputted words (space sep) and check for matches within row
-              for (var i = 0; i < args.length; i++)
-              {
-                if (rowStr.includes(args[i]))
-                {
-                  //ignore other renditions of a track when uncalled for
-                  for (var k = 0; k < dupes.length; k++)
-                  {
-                    if (rowStr.includes(dupes[k]) && !mergedArgs.includes(dupes[k])) continue;
-                    anyMatch = true;
-                    matchCounter[x]++;
-                  }
-                  //console.log(`input "${args[i]}" found in row ${x}: ${rowStr}`);
-                }
-                else continue;
-              }
-            }
+        // Reassign best match entry
+        theRow = rows[matchCounter[index].row];
 
-            if (!anyMatch)
-            {
-              return message.reply("I cannot find a match for that search entry.");
-            }
+        // --DEBUG-- Log best match entry
+        //console.log(theRow.Track);
 
-            var indexOfMax = 0;
-            for (var i = 0; i < matchCounter.length; i++)
-            {
-              if (matchCounter[i] > matchCounter[indexOfMax])
-              {
-                //console.log(theSheet.cells[i]);
-                indexOfMax = i;
-              }
-            }
+        // Format acquired data
+        embed = await client.handler.format(client, theRow);
+      }
 
-            var output = "";
-            for (var j = 1; j <= sheet.colCount; j++)
-            {
-              if (theSheet.cells[indexOfMax][j] === undefined) continue;
-              output += theSheet.cells[indexOfMax][j].value+ " | ";
-            }
-            forEmbed = theSheet.cells[indexOfMax];
-            /*console.log(forEmbed);
-              for (var i = 0; i < 12; i++)
-              {
-                try{
-                  forEmbed[i].value;
-                }
-                catch(err){
-                  forEmbed[i].value = '?';
-                }
-              }
-            return console.log(forEmbed);*/
-            //console.log(output);
-
-            try
-            {
-              title = forEmbed[8].value;
-            }
-            catch(err)
-            {
-              title = '?';
-            }
-
-            //formatting
-            for(x = 1; x <= 12; x++)
-            {
-              try
-              {
-                if (x!=8)
-                {
-                  if (x==3)
-                  {
-                    switch(forEmbed[x].value)
-                    {
-                      case 'U': temp[x-1] = `**${headers[x-1]}:** Uncaged`; break;
-                      case 'I': temp[x-1] = `**${headers[x-1]}:** Instinct`; break;
-                      case 'A': temp[x-1] = `**${headers[x-1]}:** Album`; break;
-                      case 'M': temp[x-1] = `**${headers[x-1]}:** Mixed`;
-                    }
-                  }
-                  else if (x==4)
-                  {
-                    switch(forEmbed[x].value)
-                    {
-                      case 'Y': temp[x-1] = `**${headers[x-1]}:** Yes`; break;
-                      case 'N': temp[x-1] = `**${headers[x-1]}:** No`;
-                    }
-                  }
-                  else if (x==5)
-                  {
-                    switch(forEmbed[x].value)
-                    {
-                      case 'C': temp[x-1] = `**${headers[x-1]}:** Clean`; break;
-                      case 'E': temp[x-1] = `**${headers[x-1]}:** Explicit`; break;
-                      case 'I': temp[x-1] = `**${headers[x-1]}:** Instrumental`; break;
-                      case '-': temp[x-1] = `**${headers[x-1]}:** -`;
-                    }
-                  }
-                  else
-                  {
-                    temp[x-1] = `**${headers[x-1]}:** ${forEmbed[x].value}`;
-                  }
-                }
-              }
-              catch(err)
-              {
-                temp[x-1] = `**${headers[x-1]}:** ?`;
-              }
-            }
-
-            temp.splice(7,1);
-            info = temp.join("\n");
-
-            var genre;
-            try { genre = forEmbed[6].value; }
-            catch(err) { genre = '?'; }
-
-            var color = 'b9b9b9';
-
-            var genres =
-                ['Hip Hop', 'Traditional', 'Future Bass', 'UK Garage', 'Instinct', 'Downtempo / Ambient', 'Drum & Bass', 'Experimental',
-                 'House', 'Electro House', 'Hardcore', 'Midtempo', 'Pop', 'Trance', 'Dubstep', 'Drumstep', 'Trap', 'Metal', 'Punk', 'Breaks',
-                 'Rock', 'R&B', 'Industrial', 'Uncaged', 'Synthwave', 'Moombah', 'Glitch Hop'];
-            var colors =
-                ['d77f7d', 'd0ad60', '9090ff', 'bf7fff', 'faeccf', 'f0b4b5', 'f61a03', '757c65', 'eb8200', 'e1c500', '009600', '0a9655', '16acb0',
-                 '0080e6', '941de8', 'd5007f', '810029', '003a12', '3a003a', '0a1857', '87c095', '6988a2', '282828', '1c1c1c', '674ea7', '0a9655', '0a9655'];
-
-            for (var i = 0; i < genres.length; i++)
-            {
-              if (genres[i] == genre)
-              {
-                color = colors[i];
-              }
-            }
-
-            embed
-              .setColor(color)
-              .setTitle(`**${title}**`)
-              .setDescription(`${info}`)
-
-            message.channel.send(embed).catch(console.error);
-          });
-      });
+      // Sad violin music
+      else return message.reply("I cannot find a match for that search entry.");
   }
   catch (err)
   {
-    message.channel.send(`Hey <@${client.config.ownerID}>, fix the goddamn code!`);
-    console.error(err);
+    // Ping bot owner for error, send error log, and log it
+    client.handler.throw(client, message, err);
   }
-}
+
+  // Calculate and log the total run time of the function
+  var funcTime = Date.now() - startTime;
+  embed.setFooter(`Retrieved in ${funcTime}ms.`, `${client.botAvatar}`);
+
+  // Finally send the message
+  message.channel.send(embed).catch(console.error);
+};
