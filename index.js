@@ -1,25 +1,43 @@
-//index.js
+// index.js
 // Initialize dependencies
 const Discord = require("discord.js");
-const client = new Discord.Client();
-const Enmap = require("enmap");
-const fs = require("fs");
+const { CommandoClient } = require('discord.js-commando');
+
+const { GoogleSpreadsheet } = require('google-spreadsheet');
+const path = require('path');
+const fetch = require('node-fetch');
+const fs = require('fs');
+
+const handler = require("./resources/modules/handler.js");
+
 const config = require("./resources/keys/config.json");
 const colors = require("./resources/objects/colors.json");
 const keyCodes = require("./resources/objects/keyCodes.json");
-const { GoogleSpreadsheet } = require('google-spreadsheet');
-const fetch = require('node-fetch');
-const handler = require("./resources/modules/handler");
+const genrePrefixes = require('./resources/objects/genrePrefixes.json');
 
-// Reinitialize dependencies to let submodules use them
+// const client = new Discord.Client();
+
+// Initialize the Commando client
+const client = new CommandoClient(
+{
+	commandPrefix: config.prefix,
+	owner: [config.ownerID, config.coID],
+  disableEveryone: true,
+});
+
+// Bind dependencies to client for sub-unit usage
+client.Discord = Discord;
+
+client.gs = GoogleSpreadsheet;
+client.fetch = fetch;
+client.fs = fs;
+
+client.handler = handler;
+
 client.config = config;
 client.colors = colors;
 client.keyCodes = keyCodes;
-client.Discord = Discord;
-client.fs = fs;
-client.gs = GoogleSpreadsheet;
-client.fetch = fetch;
-client.handler = handler;
+client.genrePrefixes = genrePrefixes;
 
 // Initialize Google Sheets API
 const doc = new client.gs(client.config.sheetKey);
@@ -38,20 +56,21 @@ fs.readdir("./events/", (err, files) =>
 });
 
 // Initialize commands
-client.commands = new Enmap();
-
-fs.readdir("./commands/", (err, files) =>
-{
-	if (err) return console.error(err);
-	files.forEach(file => {
-		if (!file.endsWith(".js"))
-			return;
-		let props = require(`./commands/${file}`);
-		let commandName = file.split(".")[0];
-		console.log(`Attempting to load command ${commandName}`);
-		client.commands.set(commandName, props);
-	});
-});
+client.registry
+    .registerDefaultTypes()
+    .registerGroups([
+        ['admin', 'Owner-only commands'],
+        ['main', 'Main bot commands'],
+        ['util', 'Utility commands'],
+    ])
+    .registerDefaultGroups()
+    .registerDefaultCommands({
+        ping: false,
+        help: false,
+				prefix: false,
+        unknownCommand: false
+    })
+    .registerCommandsIn(path.join(__dirname, 'commands'));
 
 // Finally login
 client.login(client.config.token);
