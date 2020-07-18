@@ -44,7 +44,7 @@
     { "keyID": "9",  "major": "G# major", "minor": "F minor"  },
     { "keyID": "9",  "major": "G#major",  "minor": "Fminor"  },
 
-    { "keyID": "10", "major": "A maj",   "minor": "F# min" },
+    { "keyID": "10", "major": "A maj",    "minor": "F# min" },
     { "keyID": "10", "major": "Amaj",     "minor": "F#min" },
     { "keyID": "10", "major": "A major",  "minor": "F# minor" },
     { "keyID": "10", "major": "Amajor",   "minor": "F#minor" },
@@ -58,5 +58,4 @@
     { "keyID": "12", "major": "Bmaj",     "minor": "G#min" },
     { "keyID": "12", "major": "B major",  "minor": "G# minor" },
     { "keyID": "12", "major": "Bmajor",   "minor": "G#minor" }
-    
 ]
