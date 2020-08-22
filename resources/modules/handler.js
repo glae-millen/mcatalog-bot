@@ -3,28 +3,28 @@ exports.format = async (client, row) =>
 {
   // Initialize Discord embed
   const embed = new client.Discord.MessageEmbed();
-  
+
   // Initialize variables
   var colors = client.colors,
       genre = row.Genre,
       color = 'b9b9b9';
 
   // Cycle through the colors in colors.json to find a match, bot uses default color if there is no match
-  try 
-  { 
+  try
+  {
     color = colors.find(obj => obj.genre == genre).color;
   } catch (err) { /* Do nothing */ }
-  
+
   // Initialize and build the embed description
   var embedDesc;
-  
+
   // Detect content creator availability and mark accordingly
   switch (row.CC)
   {
     case 'Y': embedDesc = `✅ Safe for content creators`; break;
     default:  embedDesc = `⚠️ Not safe for content creators`; break;
   }
-  
+
   // Detect explicit content and mark accordingly
   switch (row.E)
   {
@@ -56,25 +56,25 @@ exports.format = async (client, row) =>
 
   // Fetch the cover art URL from AWS
   await client.fetch(`https://connect.monstercat.com/v2/release/${releaseID}/cover?image_width=3000`)
-    .then(res => (imageURL = res.url))
+    .then(res => (imageURL = res.url.split("?")[0]))
     .catch(err => console.error(err));
 
   // --DEBUG-- Log the fetched image URL
   // console.log(imageURL);
 
   // Set the embed thumbnail to the track's cover art, or to the default image if fetching fails
-  if (!releaseID) embed.setThumbnail(`${defaultImage}`);
+  if (!releaseID || !embed.thumbnail) embed.setThumbnail(`${defaultImage}`);
   else embed.setThumbnail(`${imageURL}`);
-  
+
   // Build the embed
   embed
     .setColor(color)
     .setTitle(`${row.Track}`)
-    .setDescription(`by **${row.Artists}**\n${embedDesc}`)  
+    .setDescription(`by **${row.Artists}**\n${embedDesc}`)
     .setURL(`https://monstercat.com/release/${row.ID}`)
-    
+
     .addField(`**Genre:**`,            `${row.Genre}`)
-    
+
     .addField(`**Catalog:**`,          `${row.ID}`, true)
     .addField(`**Date:**`,             `${row.Date}`, true)
     .addField(`**Compilation:**`,      `${row.Comp}`, true)
@@ -83,7 +83,7 @@ exports.format = async (client, row) =>
     .addField(`**Key:**`,              `${row.Key}`, true)
     .addField(`**Length:**`,           `${row.Length}`, true)
   ;
-  
+
   // Return the formatted embed
   return embed;
 }
@@ -114,7 +114,7 @@ exports.throw = async (client, message, err) =>
   await channel.send(`Command issued: \`\`\`${message.content}\`\`\``);
   await channel.send(`Error encountered: \`\`\`${err}\`\`\``);
   await console.error(err);
-  
+
   // Reboot
   process.exit(1);
 }
@@ -140,7 +140,7 @@ exports.processArgs = (argv, keys) =>
         if (argv[j][0] == '$') break;
         thisArg += argv[j] + " ";
       }
-      
+
       thisArg = thisArg.trim();
 
       for (var j = 0; j < keys.length; j++)
