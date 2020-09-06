@@ -63,8 +63,18 @@ exports.format = async (client, row) =>
   // console.log(imageURL);
 
   // Set the embed thumbnail to the track's cover art, or to the default image if fetching fails
-  if (!releaseID || !embed.thumbnail) embed.setThumbnail(`${defaultImage}`);
+
+  if (!releaseID) embed.setThumbnail(`${defaultImage}`);
   else embed.setThumbnail(`${imageURL}`);
+
+  // --DEBUG-- Log embed.thumbnail if it exists
+  console.log(embed.thumbnail);
+
+  // Set the embed thumbnail to the default image, if the bot fails to use the cover art for some fucking reason
+  if (!embed.thumbnail) embed.setThumbnail(`${defaultImage}`);
+
+  // --DEBUG-- Send a copy of the cover art on DIscord
+  // client.channels.cache.get("535282119791083520").send(`${imageURL}`);
 
   // Build the embed
   embed
