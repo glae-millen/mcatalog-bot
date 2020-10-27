@@ -1,11 +1,11 @@
-// lookup.js
+// info.js
 const { Command } = require('discord.js-commando');
 const { MessageEmbed } = require('discord.js');
 module.exports = class extends Command
 {
-  constructor (client) 
+  constructor (client)
   {
-    super(client, 
+    super(client,
           {
             name: 'info',
             group: 'main',
@@ -13,6 +13,7 @@ module.exports = class extends Command
             aliases: ['i', 'lookup'],
             description: 'Shows information regarding a Monstercat track.',
             throttling: 
+            throttling:
             {
               usages: 1,
               duration: 5
@@ -30,10 +31,10 @@ module.exports = class extends Command
     // Initialize args
     const args = message.content.slice(this.client.commandPrefix.length).trim().split(/ +/g);
     args.shift();
-    
+
     // Easy access for the bot avatar
     const botAvatar = this.client.users.cache.get(this.client.config.botID).avatarURL();
-    
+
     // Capture the time at the start of function execution
     var startTime = new Date().getTime();
 
@@ -41,7 +42,7 @@ module.exports = class extends Command
     const doc = this.client.doc;
     await doc.useServiceAccountAuth(require("../../resources/keys/google.json"));
     await doc.loadInfo();
-  
+
     // Big try/catch purely to spam ping Hanabi when you're debugging a crashing issue
     try
     {
@@ -60,8 +61,9 @@ module.exports = class extends Command
           rowMatches = 0,
           anyMatch = false,
           matchCounter = [],
-          mergedArgs = args.join(" "), 
-          dupes = [ "remix", "remake", "vip", "classical", "mix" ];
+
+          mergedArgs = args.join(" "),
+          dupes = [ "remix", "remake", "vip", "classical", "mix", "acoustic"];
 
       // Automatically find the Catalog sheet. Yay!
       var sheetId;
