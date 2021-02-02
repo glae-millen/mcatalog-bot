@@ -1,13 +1,3 @@
-# badmash-bot
+# This repository is out-of-date.
 
-Badmash is a Discord bot that fetches and displays data from the MCatalog Google Sheet, available at rebrand.ly/mcatalog.
-
-Features include:
-  
-    Release info (c.info)
-    Random release info (c.random)
-    Mashup tracklist generation (c.generate)
-    (WIP) Roulette game
-
-
-Developed by https://github.com/glae-millen and https://github.com/joe-ldp
+The base repository for badmash-bot is now at https://github.com/joe-ldp/mcatalog-bot.
